@@ -1,50 +1,63 @@
 import axios from "axios";
 import * as React from "react";
-import Chart from 'react-apexcharts';
+import { useEffect, useState } from "react";
+import Chart from "react-apexcharts";
 import { SaleSum } from "types/sale";
 import { BASE_URL } from "utils/requests";
 
 type ChartData = {
-    labels: string[];
-    series: number[];
-}
+  labels: string[];
+  series: number[];
+};
 
 function DonutChart() {
+  const [chartData, setChartData] = useState<ChartData>({
+    labels: [],
+    series: [],
+  });
 
-    //FORMA ERRADA
-    let chartData : ChartData = { labels: [], series: []};
+  useEffect(() => {
+    axios.get(`${BASE_URL}/sales/amount-by-seller`).then((response) => {
+      const data = response.data as SaleSum[];
+      const myLabels = data.map((x) => x.sellerName);
+      const mySeries = data.map((x) => x.sum);
 
-    //FORMA ERRADA
-    axios.get(`${BASE_URL}/sales/amount-by-seller`).then(response => {
-        const data = response.data as SaleSum[];
-        const myLabels = data.map (x => x.sellerName);
-        const mySeries = data.map (x => x.sum);
-
-        chartData = { labels: myLabels, series: mySeries};
-        console.log(chartData);
+      setChartData({ labels: myLabels, series: mySeries });
+      // console.log(chartData);
     });
+  }, []);
 
+  //FORMA ERRADA
+  //let chartData : ChartData = { labels: [], series: []};
 
+  //FORMA ERRADA
+  // axios.get(`${BASE_URL}/sales/amount-by-seller`).then(response => {
+  //     const data = response.data as SaleSum[];
+  //     const myLabels = data.map (x => x.sellerName);
+  //     const mySeries = data.map (x => x.sum);
 
-    //const mockData = {
-    //    series: [220961, 185987, 152582],
-    //    labels: ['1T21', '2T21', '3T21']
-    //}
-    
-    const options = {
-        legend: {
-            show: true
-        }
-    }
-    
+  //     setChartData({ labels: myLabels, series: mySeries});
+  //     console.log(chartData);
+  // });
 
-    return (
-        <Chart 
-            options={{ ...options, labels: chartData.labels}}
-            series={chartData.series}
-            type="donut"
-            height="240"
-        />
+  //const mockData = {
+  //    series: [220961, 185987, 152582],
+  //    labels: ['1T21', '2T21', '3T21']
+  //}
+
+  const options = {
+    legend: {
+      show: true,
+    },
+  };
+
+  return (
+    <Chart
+      options={{ ...options, labels: chartData.labels }}
+      series={chartData.series}
+      type="donut"
+      height="240"
+    />
   );
 }
 
